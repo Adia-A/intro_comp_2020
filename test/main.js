@@ -3,6 +3,11 @@
     // Create ink story from the content using inkjs
     var story = new inkjs.Story(storyContent);
 
+    // Watchers for variables within ink
+    story.ObserveVariable("number_of_infected_people", (varName, newValue) => {
+        console.log(newValue)
+    });
+
     // Global tags - those at the top of the ink file
     // We support:
     //  # theme: dark
@@ -23,6 +28,7 @@
                 var byline = document.querySelector('.byline');
                 byline.innerHTML = "by "+splitTag.val;
             }
+            
         }
     }
 
@@ -66,6 +72,14 @@
 
                     showAfter(delay, imageElement);
                     delay += 200.0;
+                }
+
+                // BGM: src
+                if( splitTag && splitTag.property == "BGM" ) {
+                    var audio = splitTag.val;
+                    let audioObject = new Audio(audio);
+                    audioObject.loop = true;
+                    audioObject.play();
                 }
 
                 // CLASS: className
