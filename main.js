@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, ipcMain} = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const storage = require('electron-storage')
 
@@ -7,7 +7,7 @@ const storage = require('electron-storage')
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 
-function createWindow () {
+function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 800,
@@ -31,12 +31,14 @@ function createWindow () {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow()
-  
+
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+
+  console.log(app.getPath('userData'))
 })
 
 // Quit when all windows are closed.
@@ -46,27 +48,52 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })
 
+
+
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
 ipcMain.on('saveFile', (event, file) => {
-  storage.set('saveFile/currentSave.json', file).then(() => {
+  storage.set(`saveFile/${file.name}`, file.data).then(() => {
     console.log('The file was successfully written to the storage');
   })
-  .catch(err => {
-    console.error(err);
-  });
+    .catch(err => {
+      console.error(err);
+    });
   // Send result back to renderer process
   //win.webContents.send("fromMain", responseObj);  
 })
 
 ipcMain.on('loadFile', (event) => {
-  storage.get('saveFile/currentSave.json').then(data => {
-    mainWindow.webContents.send("sendFile", data); 
+  storage.isPathExists('saveFile/currentSave.json').then(itDoes => {
+    if (itDoes) {
+      storage.get('saveFile/currentSave.json').then(data => {
+        // Send result back to renderer process
+        mainWindow.webContents.send("sendFile", data);
+      })
+        .catch(err => {
+          console.error(err);
+        });
+      
+    } else {
+      mainWindow.webContents.send("sendFile", null);
+    }
   })
-  .catch(err => {
-    console.error(err);
-  });
-  // Send result back to renderer process
-   
+})
+
+ipcMain.on('loadHistory', (event) => {
+  storage.isPathExists('saveFile/history.json').then(itDoes => {
+    if (itDoes) {
+      storage.get('saveFile/history.json').then(data => {
+        // Send result back to renderer process
+        mainWindow.webContents.send("sendHistory", data);
+      })
+        .catch(err => {
+          console.error(err);
+        });
+      
+    } else {
+      mainWindow.webContents.send("sendHistory", null);
+    }
+  })
 })

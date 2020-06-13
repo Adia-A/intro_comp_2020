@@ -5,11 +5,14 @@
 
         // Create ink story from the content using inkjs
         var story = new inkjs.Story(storyContent);
+        var storyHistory = { history: [] };
 
         // Save Game
         document.getElementById("save").addEventListener("click", () => {
+            console.log(storyHistory)
             let savedJson = story.state.ToJson();
-            window.api.send("saveFile", savedJson);
+            window.api.send("saveFile", {name: "currentSave.json", data: savedJson});
+            window.api.send("saveFile", {name: "history.json", data: JSON.stringify(storyHistory)})
         });
 
         // Watchers for variables within ink
@@ -46,65 +49,66 @@
 
         if (data) {
             story.state.LoadJson(JSON.stringify(data));
-            console.log(story)
         }
+        console.log(story)
 
-        function applyTags() {
-                var tags = story.currentTags;
+        function applyTags(delay) {
+            var tags = story.currentTags;
 
-                // Any special tags included with this line
-                var customClasses = [];
-                for (var i = 0; i < tags.length; i++) {
-                    var tag = tags[i];
+            // Any special tags included with this line
+            var customClasses = [];
+            for (var i = 0; i < tags.length; i++) {
+                var tag = tags[i];
 
-                    // Detect tags of the form "X: Y". Currently used for IMAGE and CLASS but could be
-                    // customised to be used for other things too.
-                    var splitTag = splitPropertyTag(tag);
+                // Detect tags of the form "X: Y". Currently used for IMAGE and CLASS but could be
+                // customised to be used for other things too.
+                var splitTag = splitPropertyTag(tag);
 
-                    // IMAGE: src
-                    if (splitTag && splitTag.property == "IMAGE") {
-                        var imageElement = document.createElement('img');
-                        imageElement.src = splitTag.val;
-                        storyContainer.appendChild(imageElement);
+                // IMAGE: src
+                if (splitTag && splitTag.property == "IMAGE") {
+                    var imageElement = document.createElement('img');
+                    imageElement.src = splitTag.val;
+                    storyContainer.appendChild(imageElement);
 
-                        showAfter(delay, imageElement);
-                        delay += 200.0;
-                    }
-
-                    // BGM: src
-                    if (splitTag && splitTag.property == "BGM") {
-                        var audio = splitTag.val;
-                        let audioObject = new Audio(audio);
-                        audioObject.loop = true;
-                        audioObject.play();
-                    }
-
-                    // CLASS: className
-                    else if (splitTag && splitTag.property == "CLASS") {
-                        customClasses.push(splitTag.val);
-                    }
-
-                    // CLEAR - removes all existing content.
-                    // RESTART - clears everything and restarts the story from the beginning
-                    else if (tag == "CLEAR" || tag == "RESTART") {
-                        removeAll("p");
-                        removeAll("img");
-
-                        // Comment out this line if you want to leave the header visible when clearing
-                        setVisible(".header", false);
-
-                        if (tag == "RESTART") {
-                            restart();
-                            return;
-                        }
-                    }
+                    showAfter(delay, imageElement);
+                    delay += 200.0;
                 }
 
-                return customClasses;
+                // BGM: src
+                if (splitTag && splitTag.property == "BGM") {
+                    var audio = splitTag.val;
+                    let audioObject = new Audio(audio);
+                    audioObject.loop = true;
+                    audioObject.play();
+                }
+
+                // CLASS: className
+                else if (splitTag && splitTag.property == "CLASS") {
+                    customClasses.push(splitTag.val);
+                }
+
+                // CLEAR - removes all existing content.
+                // RESTART - clears everything and restarts the story from the beginning
+                else if (tag == "CLEAR" || tag == "RESTART") {
+                    removeAll("p");
+                    removeAll("img");
+
+                    // Comment out this line if you want to leave the header visible when clearing
+                    setVisible(".header", false);
+
+                    if (tag == "RESTART") {
+                        restart();
+                        return;
+                    }
+                }
+            }
+
+            return customClasses;
 
         }
 
         function generateStoryParagraph(text, customClasses, delay) {
+            storyHistory.history.push(text);
             // Create paragraph element (initially hidden)
             var paragraphElement = document.createElement('p');
             paragraphElement.innerHTML = text;
@@ -125,10 +129,10 @@
         // Main story processing function. Each time this is called it generates
         // all the next content up as far as the next set of choices.
         function continueStory(firstTime) {
-    
 
-            let paragraphIndex = 0;
-            let delay = 0.0;
+
+            var paragraphIndex = 0;
+            var delay = 0.0;
 
             // Don't over-scroll past new content
             var previousBottomEdge = firstTime ? 0 : contentBottomEdgeY();
@@ -138,18 +142,17 @@
 
                 // Get ink to generate the next paragraph
                 var paragraphText = story.Continue();
-                let customClasses = applyTags()
+                let customClasses = applyTags(delay)
                 generateStoryParagraph(paragraphText, customClasses, delay);
-                
+
             }
 
-            if(!paragraphText) {
+            if (!paragraphText) {
 
                 let paragraphIndex = 0;
-                let delay = 0.0;
 
                 // This runs when we load from file as the paragraph doesn't load by default
-                let customClasses = applyTags()
+                let customClasses = applyTags(delay)
                 generateStoryParagraph(story.currentText, customClasses, delay)
 
 
