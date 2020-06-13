@@ -1,13 +1,20 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, ipcMain} = require('electron')
 const path = require('path')
+const storage = require('electron-storage')
+
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the JavaScript object is garbage collected.
+let mainWindow;
 
 function createWindow () {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
+      contextIsolation: true, // protect against prototype pollution
+      enableRemoteModule: false, // turn off remote
       preload: path.join(__dirname, 'preload.js')
     }
   })
@@ -41,3 +48,25 @@ app.on('window-all-closed', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+ipcMain.on('saveFile', (event, file) => {
+  storage.set('saveFile/currentSave.json', file).then(() => {
+    console.log('The file was successfully written to the storage');
+  })
+  .catch(err => {
+    console.error(err);
+  });
+  // Send result back to renderer process
+  //win.webContents.send("fromMain", responseObj);  
+})
+
+ipcMain.on('loadFile', (event) => {
+  storage.get('saveFile/currentSave.json').then(data => {
+    mainWindow.webContents.send("sendFile", data); 
+  })
+  .catch(err => {
+    console.error(err);
+  });
+  // Send result back to renderer process
+   
+})
