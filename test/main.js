@@ -130,12 +130,10 @@
         // all the next content up as far as the next set of choices.
         function continueStory(firstTime) {
 
+            removeAll("p");
 
             var paragraphIndex = 0;
             var delay = 0.0;
-
-            // Don't over-scroll past new content
-            var previousBottomEdge = firstTime ? 0 : contentBottomEdgeY();
 
             // Generate story text - loop through available content
             while (story.canContinue) {
@@ -193,9 +191,6 @@
             // We do this manually so that removing elements and creating new ones doesn't
             // cause the height (and therefore scroll) to jump backwards temporarily.
             storyContainer.style.height = contentBottomEdgeY() + "px";
-
-            if (!firstTime)
-                scrollDown(previousBottomEdge);
         }
 
         function restart() {
