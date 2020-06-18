@@ -31,12 +31,12 @@
                 var splitTag = splitPropertyTag(globalTag);
 
                 // THEME: dark
-                if (splitTag && splitTag.property == "theme") {
-                    document.body.classList.add(splitTag.val);
-                }
+             //   if (splitTag && splitTag.property == "theme") {
+             //       document.body.classList.add(splitTag.val);
+             //   }
 
                 // author: Your Name
-                else if (splitTag && splitTag.property == "author") {
+                if (splitTag && splitTag.property == "author") {
                     var byline = document.querySelector('.byline');
                     byline.innerHTML = "by " + splitTag.val;
                 }
@@ -45,6 +45,7 @@
         }
 
         var storyContainer = document.querySelector('#story');
+        var choicesContainer = document.querySelector('#choices')
         var outerScrollContainer = document.querySelector('.outerContainer');
 
         if (data) {
@@ -110,6 +111,7 @@
         function generateStoryParagraph(text, customClasses, delay) {
             storyHistory.history.push(text);
             // Create paragraph element (initially hidden)
+            removeAll("p", storyContainer);
             var paragraphElement = document.createElement('p');
             paragraphElement.innerHTML = text;
             storyContainer.appendChild(paragraphElement);
@@ -129,8 +131,6 @@
         // Main story processing function. Each time this is called it generates
         // all the next content up as far as the next set of choices.
         function continueStory(firstTime) {
-
-            removeAll("p");
 
             var paragraphIndex = 0;
             var delay = 0.0;
@@ -163,7 +163,7 @@
                 var choiceParagraphElement = document.createElement('p');
                 choiceParagraphElement.classList.add("choice");
                 choiceParagraphElement.innerHTML = `<a href='#'>${choice.text}</a>`
-                storyContainer.appendChild(choiceParagraphElement);
+                choicesContainer.appendChild(choiceParagraphElement);
 
                 // Fade choice in after a short delay
                 showAfter(delay, choiceParagraphElement);
@@ -177,7 +177,7 @@
                     event.preventDefault();
 
                     // Remove all existing choices
-                    removeAll("p.choice");
+                    removeAll("p.choice", choicesContainer);
 
                     // Tell the story where to go next
                     story.ChooseChoiceIndex(choice.index);
@@ -248,8 +248,9 @@
 
         // Remove all elements that match the given selector. Used for removing choices after
         // you've picked one, as well as for the CLEAR and RESTART tags.
-        function removeAll(selector) {
-            var allElements = storyContainer.querySelectorAll(selector);
+        function removeAll(selector, container) {
+            var allElements = container.querySelectorAll(selector);
+            console.log(allElements)
             for (var i = 0; i < allElements.length; i++) {
                 var el = allElements[i];
                 el.parentNode.removeChild(el);
