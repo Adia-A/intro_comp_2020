@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'Rowdies';
+    src:  url('assets/fonts/Rowdies/Rowdies-Regular.ttf') format('truetype');
+}
+
 body, html {
     margin: 0;
     padding: 0;
@@ -20,6 +25,7 @@ body {
     align-content: stretch;
     height: 100vh;
     padding: 10px 0 50px 0;
+    overflow: hidden;
 }
 
 /*
@@ -51,11 +57,14 @@ body {
 */
 
 .title-text {
+    font-family: 'Rowdies', cursive;
     color: white;
     opacity: 0;
-    font-size: 5vw;
+    font-size: calc(20px + 2vw);
+    letter-spacing: 3px;
     padding-top: 0;
     flex-grow: 2;
+    text-align: center;
 }
 
 .start-button {
@@ -68,6 +77,8 @@ body {
     text-align: center;
     font-size: 20px;
     font-family: sans-serif;
+    cursor: pointer;
+    opacity: 0;
 }
 
 .start-button:hover {

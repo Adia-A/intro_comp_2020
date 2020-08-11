@@ -1,4 +1,8 @@
 
+TweenMax.set('.start-button', {
+    y: document.getElementsByClassName('container').offsetHeight + 200
+})
+
 TweenMax.set('#spell-book-svg', {
     visibility: 'visible'
 })
@@ -49,8 +53,36 @@ function fadeInTitle() {
 
 }
 
-const master = new TimelineMax()
+function buttonEntrance() {
+    let tl = new TimelineMax();
+
+    tl.to('.start-button', 1, {
+        opacity: 1
+    })
+    tl.from('.start-button', 3, {
+        y: 200,
+        ease: Back.easeOut
+    })
+
+    return tl;
+}
+
+const master = new TimelineMax({
+    onReverseComplete: changeLocation
+})
 
 master.add(spellBookEntrance(), 'book-entrance')
 master.add(sparkles(), 'glowing-sparkles')
 master.add(fadeInTitle(), 'glowing-sparkles')
+master.add(buttonEntrance(), 'glowing-sparkles')
+
+function changeLocation() {
+    location.assign('story.html')
+}
+
+const startButton = document.getElementById('start-button');
+
+startButton.addEventListener('click', function (event) {
+    master.timeScale(3).reverse();
+});
+
