@@ -19,7 +19,7 @@
       }
 
       return tagsObject;
-    },
+    }
   };
 
   /**
@@ -45,7 +45,19 @@
    * Every time a variable within ink is changed the observable function fires off
    */
   story.ObserveVariable("weapon", (varName, newValue) => {
-    console.log(newValue);
+    let weapon = ''
+    if(newValue === "sword") {
+      weapon = document.getElementById("sword-svg")
+      weapon.style.display = "block"
+
+      TweenMax.to(weapon, 3, { y: -30}).repeat(-1).yoyo(true);
+
+    } else if(newValue === "staff") {
+      weapon = document.getElementById("staff-svg")
+      weapon.style.display = "block"
+
+      TweenMax.to(weapon, 3, { y: -30}).repeat(-1).yoyo(true);
+    }
   });
 
   /** ---------------------------------------
@@ -68,19 +80,35 @@
     //      story.state.LoadJson(JSON.stringify(data));
     //  }
 
+
     continueStory();
 
     function continueStory() {
+      
     /** ---------------------------------------
      *  Display story text
      * ----------------------------------------
      * This displays the story text line by line until it hits a choice
      */
       while (story.canContinue) {
+        
         let currentStoryLine = story.Continue();
         let paragraph = document.createElement("p");
         let lineText = document.createTextNode(currentStoryLine);
 
+        //Process Tags
+        let currentTags = helper.parseGlobalTags(story.currentTags)
+        if(currentTags) {
+          
+          Object.keys(currentTags).forEach(key => {
+            if(key === "CLASS") {
+              paragraph.classList.add(currentTags[key]);
+            }
+          });
+          
+        }
+
+        // Add to DOM
         paragraph.appendChild(lineText);
         storyWrapperDiv.append(paragraph);
       }
@@ -95,7 +123,6 @@
      */
       if (story.currentChoices.length > 0) {
         story.currentChoices.forEach((choice) => {
-          console.log(choice);
 
           let anchor = document.createElement("a");
           anchor.href = "#";
