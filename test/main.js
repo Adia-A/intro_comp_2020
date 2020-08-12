@@ -71,6 +71,11 @@
     continueStory();
 
     function continueStory() {
+    /** ---------------------------------------
+     *  Display story text
+     * ----------------------------------------
+     * This displays the story text line by line until it hits a choice
+     */
       while (story.canContinue) {
         let currentStoryLine = story.Continue();
         let paragraph = document.createElement("p");
@@ -80,6 +85,14 @@
         storyWrapperDiv.append(paragraph);
       }
 
+    /** ---------------------------------------
+     *  Display choices
+     * ----------------------------------------
+     * This takes the choices and displays and add click event
+     * to each once. Once clicked we pass the choice index to the story
+     * which triggers the next node of the story and we rerun
+     * this function.
+     */
       if (story.currentChoices.length > 0) {
         story.currentChoices.forEach((choice) => {
           console.log(choice);
@@ -101,7 +114,7 @@
             // Tell the story where to go next
             story.ChooseChoiceIndex(choice.index);
 
-            // Aaand loop
+            // Start the process again but now with updated story index
             continueStory();
           });
         });
