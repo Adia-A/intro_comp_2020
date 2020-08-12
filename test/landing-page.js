@@ -77,12 +77,13 @@ master.add(fadeInTitle(), 'glowing-sparkles')
 master.add(buttonEntrance(), 'glowing-sparkles')
 
 function changeLocation() {
-    location.assign('story.html')
+    location.assign('intro.html')
 }
 
 const startButton = document.getElementById('start-button');
 
 startButton.addEventListener('click', function (event) {
+    TweenMax.to('.start-button', 2, {width: '20%' });
     master.timeScale(3).reverse();
 });
 

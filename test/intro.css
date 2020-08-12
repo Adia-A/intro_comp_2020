@@ -1,0 +1,33 @@
+body, html {
+    padding: 0;
+    margin: 0;
+}
+
+.background {
+    background-color: black;
+    color: white;
+}
+
+.quote-container {
+    visibility: hidden;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#quote {
+    font-size: 30px;
+    text-align: center;
+    width: 70%;
+}
+
+#quote-attribution {
+    opacity: 0;
+    color: gray;
+    width: 70%;
+    text-align: right;
+}
